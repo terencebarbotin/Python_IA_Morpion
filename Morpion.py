@@ -47,23 +47,73 @@ canvas.place(x=0,y=0)
 #
 #  Parametres du jeu
  
-Grille = [ [0,0,1], 
-           [2,0,0], 
+Grille = [ [0,0,0], 
+           [0,0,0], 
            [0,0,0] ]  # attention les lignes représentent les colonnes de la grille
            
 Grille = np.array(Grille)
 Grille = Grille.transpose()  # pour avoir x,y
            
-  
+PlayerTurn = True # True = joueur, False = IA
 
 ###############################################################################
 #
 # gestion du joueur humain et de l'IA
 # VOTRE CODE ICI 
 
-def Play(x,y):             
-    Grille[x][y] = 1
+def Winning():
+    if(
+        Grille[0][0] == 1 and Grille[0][1] == 1 and Grille[0][2] == 1 or
+        Grille[1][0] == 1 and Grille[1][1] == 1 and Grille[1][2] == 1 or
+        Grille[2][0] == 1 and Grille[2][1] == 1 and Grille[2][2] == 1 or
+        Grille[0][0] == 1 and Grille[1][0] == 1 and Grille[2][0] == 1 or
+        Grille[0][1] == 1 and Grille[1][1] == 1 and Grille[2][1] == 1 or
+        Grille[0][2] == 1 and Grille[1][2] == 1 and Grille[2][2] == 1 or
+        Grille[0][0] == 1 and Grille[1][1] == 1 and Grille[2][2] == 1 or
+        Grille[0][2] == 1 and Grille[1][1] == 1 and Grille[2][0] == 1
+    ):
+        return 1
+    elif(
+        Grille[0][0] == 2 and Grille[0][1] == 2 and Grille[0][2] == 2 or
+        Grille[1][0] == 2 and Grille[1][1] == 2 and Grille[1][2] == 2 or
+        Grille[2][0] == 2 and Grille[2][1] == 2 and Grille[2][2] == 2 or
+        Grille[0][0] == 2 and Grille[1][0] == 2 and Grille[2][0] == 2 or
+        Grille[0][1] == 2 and Grille[1][1] == 2 and Grille[2][1] == 2 or
+        Grille[0][2] == 2 and Grille[1][2] == 2 and Grille[2][2] == 2 or
+        Grille[0][0] == 2 and Grille[1][1] == 2 and Grille[2][2] == 2 or
+        Grille[0][2] == 2 and Grille[1][1] == 2 and Grille[2][0] == 2
+    ):
+        return 2
+    elif(
+        Grille[0][0] != 0 and Grille[0][1] != 0 and Grille[0][2] != 0 and
+        Grille[1][0] != 0 and Grille[1][1] != 0 and Grille[1][2] != 0 and
+        Grille[2][0] != 0 and Grille[2][1] != 0 and Grille[2][2] != 0
+    ):
+        return 0
+
+def Play(x,y):     
+    if(Grille[x][y] == 0):
+        if(PlayerTurn == True):    
+            Grille[x][y] = 1
+        elif(PlayerTurn == False):
+            Grille[x][y] = 2
+
+
+def WinningCase(): 
+    if(Winning() == 1):
+        canvas.itemconfig("line", fill="red")
+        messagebox.showinfo("Victoire", "Vous avez gagné !")
+        Window.destroy()
+    elif(Winning() == 2):
+        canvas.itemconfig("line", fill="yellow")
+        messagebox.showinfo("Défaite", "Vous avez perdu !")
+        Window.destroy()
+    elif(Winning() == 0):
+        canvas.itemconfig("line", fill="white")
+        messagebox.showinfo("Egalité", "Match nul !")
+        Window.destroy()
    
+
           
     
     
@@ -76,8 +126,8 @@ def Dessine(PartieGagnee = False):
         canvas.delete("all")
         
         for i in range(4):
-            canvas.create_line(i*100,0,i*100,300,fill="blue", width="4" )
-            canvas.create_line(0,i*100,300,i*100,fill="blue", width="4" )
+            canvas.create_line(i*100,0,i*100,300,fill="blue", width="4", tag = "line" )
+            canvas.create_line(0,i*100,300,i*100,fill="blue", width="4", tag = "line" )
             
         for x in range(3):
             for y in range(3):
@@ -89,7 +139,8 @@ def Dessine(PartieGagnee = False):
                 if ( Grille[x][y] == 2):
                     canvas.create_oval(xc+10,yc+10,xc+90,yc+90,outline="yellow", width="4" )
         
-       
+
+            
         
   
 ####################################################################################
@@ -97,7 +148,7 @@ def Dessine(PartieGagnee = False):
 #  fnt appelée par un clic souris sur la zone de dessin
 
 def MouseClick(event):
-   
+    global PlayerTurn
     Window.focus_set()
     x = event.x // 100  # convertit une coordonée pixel écran en coord grille de jeu
     y = event.y // 100
@@ -107,8 +158,13 @@ def MouseClick(event):
     print("clicked at", x,y)
     
     Play(x,y)  # gestion du joueur humain et de l'IA
+    PlayerTurn = not PlayerTurn
     
     Dessine()
+
+    WinningCase()
+
+    
     
 canvas.bind('<ButtonPress-1>',    MouseClick)
 
