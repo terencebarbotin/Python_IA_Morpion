@@ -96,7 +96,8 @@ def Play(x,y):
         if(PlayerTurn == True):    
             Grille[x][y] = 1
         elif(PlayerTurn == False):
-            Grille[x][y] = 2
+            #Grille[x][y] = 2
+            Grille[JoueurSimuleIA[0]][JoueurSimuleIA[1]] = 2
 
 
 def WinningCase(): 
@@ -113,10 +114,85 @@ def WinningCase():
         messagebox.showinfo("Egalité", "Match nul !")
         Window.destroy()
    
-breeb
+def JoueurSimuleIA(): 
+    # Si la partie est finie, on retourne le résultat
+    if(Winning() == 1 or Winning() == 2):
+        return Winning()
+    
+    # Sinon, on simule tous les coups possibles
+    # On définit les listes stockants tous les coups possibles et les résultats
+    ListeCoupsPossibles = []
+    Resultats = []
+    
+    # On parcourt la grille pour trouver les coups possibles
+    for x in range(3):
+        for y in range(3):
+            if(Grille[x][y] == 0):
+                ListeCoupsPossibles.append([x,y])
+            
+    # On parcourt tous les coups possibles 
+    for CoupPossible in ListeCoupsPossibles:
+        # On joue le coup K
+        Grille[CoupPossible[0]][CoupPossible[1]] = 2
+
+        # On simule le coup de l'IA
+        R = JoueurSimuleHumain()
+
+        # On stocke le résultat 
+        Resultats.append([R, CoupPossible])
+
+        # On annule le coup K (on retire le pion)
+        Grille[CoupPossible[0]][CoupPossible[1]] = 0
+
+        MeilleurCoup = (min(Resultats), Resultats.index(min(Resultats)))
+
+    # On retourne le meilleur coup de Resultats
+    return MeilleurCoup
+    
+
+def JoueurSimuleHumain():
+    # Si la partie est finie, on retourne le résultat
+    if(Winning() == 1 or Winning() == 2):
+        return Winning()
+    
+    # Sinon, on simule tous les coups possibles
+    # On définit les listes stockants tous les coups possibles et les résultats
+    ListeCoupsPossibles = []
+    Resultats = []
+    
+    # On parcourt la grille pour trouver les coups possibles
+    for x in range(3):
+        for y in range(3):
+            if(Grille[x][y] == 0):
+                ListeCoupsPossibles.append([x,y])
+            
+    # On parcourt tous les coups possibles 
+    for CoupPossible in ListeCoupsPossibles:
+        # On joue le coup K
+        Grille[CoupPossible[0]][CoupPossible[1]] = 1
+
+        # On simule le coup de l'IA
+        R = JoueurSimuleIA()
+
+        # On stocke le résultat 
+        Resultats.append([JoueurSimuleIA(), CoupPossible])
+
+        # On annule le coup K (on retire le pion)
+        Grille[CoupPossible[0]][CoupPossible[1]] = 0
+
+        MeilleurCoup = (min(Resultats), Resultats.index(min(Resultats)))
+
+
+    # On retourne le meilleur coup
+    return MeilleurCoup
+
+
+
+
+                
           
     
-    
+
 ################################################################################
 #    
 # Dessine la grille de jeu
@@ -138,11 +214,7 @@ def Dessine(PartieGagnee = False):
                     canvas.create_line(xc+90,yc+10,xc+10,yc+90,fill="red", width="4" )
                 if ( Grille[x][y] == 2):
                     canvas.create_oval(xc+10,yc+10,xc+90,yc+90,outline="yellow", width="4" )
-        
-
-            
-        
-  
+    
 ####################################################################################
 #
 #  fnt appelée par un clic souris sur la zone de dessin
@@ -164,8 +236,6 @@ def MouseClick(event):
 
     WinningCase()
 
-    
-    
 canvas.bind('<ButtonPress-1>',    MouseClick)
 
 #####################################################################################
@@ -175,14 +245,3 @@ canvas.bind('<ButtonPress-1>',    MouseClick)
 AfficherPage(0)
 Dessine()
 Window.mainloop()
-
-
-  
-
-
-    
-        
-
-      
- 
-
